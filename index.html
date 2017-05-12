@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello, WebVR! - A-Frame</title>
+  <meta name="description" content="Hello, WebVR! - A-Frame">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+
+<script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
+<script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
+<script type="text/javascript">
+var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+var cameraStream;
+getUserMedia.call(navigator, {
+    video: true,
+    audio: true //optional
+}, function (stream) {
+    /*
+    Here's where you handle the stream differently. Chrome needs to convert the stream
+    to an object URL, but Firefox's stream already is one.
+    */
+    if (window.webkitURL) {
+        video.src = window.webkitURL.createObjectURL(stream);
+    } else {
+        video.src = stream;
+    }
+
+    //save it for later
+    cameraStream = stream;
+
+    video.play();
+});
+</script>
+
+<body style='margin : 0px; overflow: hidden;'>
+  <video id="video" width="640" height="480" autoplay></video>
+  <button id="snap">Snap Photo</button>
+  <canvas id="canvas" width="640" height="480"></canvas>
+
+	<a-scene embedded artoolkit='sourceType: webcam;'>
+		<a-box position='0 0 0.5' material='opacity: 0.5;'></a-box>
+    <a-sphere position="0 0.0 0.5" radius="0.5" color="#EF2D5E"></a-sphere>
+		<a-plane position="0 0 0" rotation="0 0 0" width="1" height="1" color="#7BC8A4"></a-plane>
+		<a-marker-camera parset='./assets/marker64.pat'></a-marker-camera>
+	</a-scene>
+
+
+</body>
