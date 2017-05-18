@@ -38,10 +38,13 @@ getUserMedia.call(navigator, {
   <canvas id="canvas" width="640" height="480"></canvas>
 
 	<a-scene embedded artoolkit='sourceType: webcam;'>
-		<a-box position='0 0 0.5' material='opacity: 0.5;'></a-box>
+
     <a-sphere position="0 0.0 0.5" radius="0.5" color="#EF2D5E"></a-sphere>
 		<a-plane position="0 0 0" rotation="0 0 0" width="1" height="1" color="#7BC8A4"></a-plane>
-		<a-marker-camera parset='./assets/marker64.pat'></a-marker-camera>
+		<a-marker-camera url='./assets/patt.batt'>
+    </a-marker-camera>
+    <a-marker-camera preset='hiro'>
+    </a-marker-camera>
 	</a-scene>
 
 
