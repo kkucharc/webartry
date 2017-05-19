@@ -14,18 +14,15 @@
     </a-assets>
 
     <a-marker url="./patt.bat" type='pattern'>
-      <a-box id='box' position='0 0.5 0' material='opacity: 0.5; side: double; color:pink;' >
-        <a-entity ply-model="src: #bb">
-          <a-animation attribute="rotation" to="360 0 0" dur="5000" easing='linear' repeat="indefinite"></a-animation>
-        </a-entity>
+      <a-box id='box' position='0 0.5 0' material='opacity: 0.5; side: double; color:pink;' text='value: LoL'>
       </a-box>
     </a-marker>
 
     <a-marker preset='kanji'>
       <a-box position='0 0.5 0' material='opacity: 0.5; side: double;color:green;'>
-        <a-torus-knot radius='0.27' radius-tubular='0.05'>
+        <a-entity ply-model="src: #bb" rotation='-90 0 0'scale='0.02 0.02 0.02'>
           <a-animation attribute="rotation" to="360 0 0" dur="5000" easing='linear' repeat="indefinite"></a-animation>
-        </a-torus-knot>
+        </a-entity>
       </a-box>
     </a-marker>
 
