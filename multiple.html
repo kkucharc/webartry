@@ -13,7 +13,7 @@
       <a-asset-item id="bb" src="./assets/BB.bake.ply" ></a-asset-item>
     </a-assets>
 
-    <a-marker url="./patt.bat" type='pattern'>
+    <a-marker url="./assets/patt.bat" type='pattern'>
       <a-box id='box' position='0 0.5 0' material='opacity: 0.5; side: double; color:pink;' text='value: LoL'>
       </a-box>
     </a-marker>
@@ -30,8 +30,10 @@
   </a-scene>
 
   <script>
+  console.log('lol 1');
     var commits = getRecent3Commits('https://api.github.com/repos/Polidea/RxAndroidBle/commits')
     .then(function(json){
+      console.log('lol 2');
       return addTextToElement(json, 'box')
     })
   </script>

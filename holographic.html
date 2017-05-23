@@ -6,8 +6,8 @@
 <script src="./node_modules/ar.js/three.js/vendor/jsartoolkit5/build/artoolkit.min.js"></script>
 <script src="./node_modules/ar.js/three.js/vendor/jsartoolkit5/js/artoolkit.api.js"></script>
 <!-- include threex.artoolkit -->
-<script src="./node_modules/ar.js/three.js/threex-artoolkitsource.js"></script>
-<script src="./node_modules/ar.js/three.js/threex-artoolkitcontext.js"></script>
+<script src="./node_modules/ar.js/three.js/threex-artoolkitsource2.js"></script>
+<script src="./node_modules/ar.js/three.js/threex-artoolkitcontext2.js"></script>
 <script src="./node_modules/ar.js/three.js/threex-armarkercontrols.js"></script>
 <script src="./node_modules/ar.js/three.js/threex-arbasecontrols.js"></script>
 <script>THREEx.ArToolkitContext.baseURL = './'</script>
@@ -225,7 +225,7 @@
 
 	// create atToolkitContext
 	var arToolkitContext = new THREEx.ArToolkitContext({
-		cameraParametersUrl: THREEx.ArToolkitContext.baseURL +'../data/data/camera_para.dat',
+		cameraParametersUrl: THREEx.ArToolkitContext.baseURL +'/node_modules//ar.js/data/data/camera_para.dat',
 		detectionMode: 'mono',
 		maxDetectionRate: 30,
 		canvasWidth: 80*4,
@@ -255,7 +255,7 @@
 	// init controls for camera
 	var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
 		type : 'pattern',
-		patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.hiro',
+		patternUrl : THREEx.ArToolkitContext.baseURL + './node_modules//ar.js/data/data/patt.hiro',
 		// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
 		// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
 		changeMatrixMode: 'cameraTransformMatrix'

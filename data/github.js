@@ -22,15 +22,19 @@ function getRecent3Commits(url){
   })
 }
 
-function addTextToElement(jsons, identifier){
-  var element  = document.getElementById(identifier)
-  var entity = document.createElement('a-entity')
-  var att = document.createAttribute('text')
-  var texts = jsons.reduce(function(prevString, json){
+function parseRepoJSON(jsons){
+  return jsons.reduce(function(prevString, json){
     var commit = json.commit
     var message = commit.message.split(' ').slice(0,3).join('+');
     return `${prevString} \n ${commit.committer.date} - ${commit.committer.name}:\n\t"${message}(...)"`
   }, '')
+}
+
+function addTextToElement(jsons, identifier){
+  var element  = document.getElementById(identifier)
+  var entity = document.createElement('a-entity')
+  var att = document.createAttribute('text')
+  var texts = parseRepoJSON(jsons)
   att.value = `value: ${texts};`
   entity.setAttributeNode(att)
 
