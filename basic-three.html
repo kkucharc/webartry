@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" charset="UTF-8">
+
 <!-- three.js library -->
 <script src='./libs/three.js/three.js'></script>
 <!-- ar.js -->
@@ -111,7 +112,7 @@
 		changeMatrixMode: 'cameraTransformMatrix'
 	})
 	// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
-	scene.visible = false
+	scene.visible = true;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add an object in the scene
@@ -133,6 +134,29 @@
 	var mesh	= new THREE.Mesh( geometry, material );
 	mesh.position.y	= 0.5
 	scene.add( mesh );
+
+	var loader = new THREE.FontLoader();
+	loader.load( './/node_modules/three/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+		var textParams =  {
+			font: font,
+			size: 80,
+			height: 5,
+			curveSegments: 12,
+			bevelEnabled: true,
+			bevelThickness: 10,
+			bevelSize: 8,
+			bevelSegments: 5
+		}
+		var content = 'TEXT';
+		var text = new THREE.TextGeometry( content, textParams );
+		var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+		var atextMesh = new THREE.Mesh( text, material )
+
+		atextMesh.position.y	= 0.5;
+		console.log('sth')
+		scene.add( atextMesh );
+		return atextMesh;
+	})
 	//
 	// var loader = new THREE.PLYLoader();
 	// loader.load( './assets/BB.bake.ply', function ( geometry ) {
@@ -161,23 +185,68 @@
 		renderer.render( scene, camera );
 	})
 
+	var content = {};
+	var textMesh;
+	var timestamp;
 	onRenderFcts.push(function(){
 		if(camera.visible && !marker_mutex){
-			marker_mutex = true;
-			var commits = getRecent3Commits('https://api.github.com/repos/Polidea/RxAndroidBle/commits')
-	    .then(function(json){
-	      console.log('lol 2');
-				var text = parseRepoJSON(json);
-				new THREE.TextGeometry( text );
-	      return json;
-	    })
-			console.log('kaka')
-		} else if (!camera.visible && marker_mutex){
-			marker_mutex = false;
 
-			console.log('pa kaka')
+			var now = new Date();
+			console.log(now-timestamp);
+			if((!timestamp || now-timestamp>30000) && !marker_mutex){
+				console.log('github + rerender!')
+				var commits = getRecent3Commits('https://api.github.com/repos/Polidea/RxAndroidBle/commits', timestamp)
+				.then(function(json){
+					content = json;
+					timestamp = new Date()
+					return renderText(content);
+				})
+			}else{
+				console.log(marker_mutex);
+				if(!marker_mutex){
+					console.log('rerender!')
+					return renderText(content);
+				}else{
+					console.log('doing nothing!')
+				}
+			}
+			marker_mutex = true;
+	} else if (!camera.visible && marker_mutex){
+		scene.add(mesh);
+		scene.remove(textMesh)
+		marker_mutex = false;
+		console.log('pa kaka')
+	}
+})
+
+function renderText(json){
+	console.log('kaka');
+	var loader = new THREE.FontLoader();
+	return loader.load( './/node_modules/three/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+		var textParams =  {
+			font: font,
+			size: 80,
+			height: 5,
+			curveSegments: 12,
+			bevelEnabled: true,
+			bevelThickness: 10,
+			bevelSize: 8,
+			bevelSegments: 5
 		}
-	})
+
+		console.log('lol 2');
+		var content = parseRepoJSON(json);
+		var text = new THREE.TextGeometry( content, textParams );
+		var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+		textMesh = new THREE.Mesh( text, material )
+		scene.remove(mesh);
+		textMesh.position.y	= 0.5
+		scene.add( textMesh );
+
+		return json;
+	}
+)
+}
 
 	// run the rendering loop
 	var lastTimeMsec= null

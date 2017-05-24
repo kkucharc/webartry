@@ -1,5 +1,5 @@
 
-function getRecent3Commits(url){
+function getRecent3Commits(url, timestamp, oldRes){
   var myHeaders = new Headers();
 
   var myInit = { method: 'GET',
@@ -19,6 +19,7 @@ function getRecent3Commits(url){
   })
   .catch(function(err){
     console.error(err);
+    return {};
   })
 }
 
