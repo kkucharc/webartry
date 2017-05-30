@@ -24,11 +24,15 @@ function getRecent3Commits(url, timestamp, oldRes){
 }
 
 function parseRepoJSON(jsons){
-  return jsons.reduce(function(prevString, json){
-    var commit = json.commit
-    var message = commit.message.split(' ').slice(0,3).join('+');
-    return `${prevString} \n ${commit.committer.date} - ${commit.committer.name}:\n\t"${message}(...)"`
-  }, '')
+  if(jsons) {
+    return jsons.reduce(function(prevString, json){
+      var commit = json.commit
+      var message = commit.message.split(' ').slice(0,3).join('+');
+      return `${prevString} \n ${commit.committer.date} \n ${commit.committer.name}:\n\t"${message}(...)"`
+    }, '');
+  } else {
+    return '';
+  }
 }
 
 function addTextToElement(jsons, identifier){
