@@ -170,6 +170,7 @@ var mesh_mutex = false;
 var pause = false;
 onRenderFcts.push(function(){
 	if(camera.visible){
+
 		return checkIfCanShowVisualisation();
 	} else {
 		if(mesh_mutex){
@@ -195,8 +196,10 @@ function checkIfCanShowVisualisation(){
 		})
 	} else {
 		if(pause){
-			scene.remove( mesh );
-			scene.add(textMesh);
+			setTimeout(function () {
+				scene.remove( mesh );
+				return scene.add( textMesh );
+			}, 5);
 		}
 	}
 
@@ -205,8 +208,10 @@ function checkIfCanShowVisualisation(){
 
 function createModel(){
 	if(mesh_mutex){
-		scene.remove( mesh );
-		return scene.add( textMesh );
+		setTimeout(function () {
+			scene.remove( mesh );
+			return scene.add( textMesh );
+		}, 5);
 	} else {
 		return renderText(content)
 		.then(function(object){
@@ -268,24 +273,58 @@ function renderText(json){
 				fontWeight: "normal"
 			}
 
-			console.log('lol 2');
 			var content = json;
 			var singleGeometry = new THREE.Geometry();
-			content.map(function(json) {
-				var text = new THREE.TextGeometry( json.message, textParams );
-				var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-				textMesh = new THREE.Mesh( text, material )
+ 			var meshContainer = group = new THREE.Object3D();
+			content.map(function(json, index) {
+				var commit = json.commit
 
-				textMesh.rotation.y = 0;
-				textMesh.rotation.x = -140;
-				textMesh.position.x	= -0.5;
-				textMesh.position.y	= 0;
-				textMesh.receiveShadow = true;
-				textMesh.scale.set(0.002, 0.002, 0.002)
-				scene.remove(mesh);
-				textMesh.position.y	= 0.5
-				resolve( textMesh );
+				var date = new THREE.TextGeometry( commit.committer.date, textParams );
+				var pink = new THREE.MeshBasicMaterial( { color: 0x822B66 } );
+				dateTextMesh = new THREE.Mesh( date, pink );
+				var rotation = -Math.PI / 1.9;
+				dateTextMesh.rotation.x = rotation;
+				dateTextMesh.rotation.y = 0;
+
+				dateTextMesh.position.x	= -0.5;
+				dateTextMesh.position.y	= 0.5;
+				dateTextMesh.position.z	= 0 + (index * (1));
+				dateTextMesh.receiveShadow = true;
+				dateTextMesh.scale.set(0.002, 0.002, 0.002)
+
+
+				var author = new THREE.TextGeometry( commit.committer.name, textParams );
+				var red = new THREE.MeshBasicMaterial( { color: 0xA33643 } );
+				authorTextMesh = new THREE.Mesh( author, red );
+				authorTextMesh.rotation.x = rotation;
+				authorTextMesh.rotation.y = 0;
+
+				authorTextMesh.position.x	= 0;
+				authorTextMesh.position.y	= 0.5;
+				authorTextMesh.position.z	= 0.3 + (index * (1));
+				authorTextMesh.receiveShadow = true;
+				authorTextMesh.scale.set(0.002, 0.002, 0.002)
+
+				var message = commit.message.split(' ').slice(0,4).join(' ');
+				var msg = new THREE.TextGeometry( '"' + message + '..."', textParams );
+				var green = new THREE.MeshBasicMaterial( { color: 0x448F30} );
+				msgTextMesh = new THREE.Mesh( msg, green );
+				msgTextMesh.rotation.x = rotation;
+				msgTextMesh.rotation.y = 0;
+
+				msgTextMesh.position.x	= 0.5;
+				msgTextMesh.position.y	= 0.5
+				msgTextMesh.position.z	= 0.6 + (index * (1));
+				msgTextMesh.receiveShadow = true;
+				msgTextMesh.scale.set(0.002, 0.002, 0.002)
+
+				meshContainer.add(dateTextMesh);
+				meshContainer.add(authorTextMesh);
+				meshContainer.add(msgTextMesh);
 			})
+			meshContainer.position.x	= -1;
+			meshContainer.position.z	= -2;
+			resolve( meshContainer );
 		}
 	)
 })
