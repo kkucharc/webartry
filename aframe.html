@@ -30,10 +30,9 @@
   </a-scene>
 
   <script>
-  console.log('lol 1');
+
     var commits = getRecent3Commits('https://api.github.com/repos/Polidea/RxAndroidBle/commits')
     .then(function(json){
-      console.log('lol 2');
       return addTextToElement(json, 'box')
     })
   </script>
