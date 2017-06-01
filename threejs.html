@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" charset="UTF-8">
+
+<!-- three.js library -->
+<script src='./libs/three.js/three.js'></script>
+<!-- ar.js -->
+<script src="libs/three.js/ar.js"></script>
+<!-- <script src="libs/PLYLoader.js"></script>
+<script src="libs/FileLoader.js"></script> -->
+<script src="./data/github.js"></script>
+<script>THREEx.ArToolkitContext.baseURL = '../'</script>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'><div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
+</div>
+<script>
+//////////////////////////////////////////////////////////////////////////////////
+//		Init
+//////////////////////////////////////////////////////////////////////////////////
+
+// init renderer
+var renderer	= new THREE.WebGLRenderer({
+	antialias: true,
+	alpha: true
+});
+renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+renderer.setSize( 640, 480 );
+renderer.domElement.style.position = 'absolute'
+renderer.domElement.style.top = '0px'
+renderer.domElement.style.left = '0px'
+document.body.appendChild( renderer.domElement );
+
+// array of functions for the rendering loop
+var onRenderFcts= [];
+
+// init scene and camera
+var scene	= new THREE.Scene();
+
+var marker_mutex = false;
+//////////////////////////////////////////////////////////////////////////////////
+//		Initialize a basic camera
+//////////////////////////////////////////////////////////////////////////////////
+
+// Create a camera
+var camera = new THREE.Camera();
+scene.add(camera);
+
+////////////////////////////////////////////////////////////////////////////////
+//          handle arToolkitSource
+////////////////////////////////////////////////////////////////////////////////
+
+var arToolkitSource = new THREEx.ArToolkitSource({
+	// to read from the webcam
+	sourceType : 'webcam',
+
+	// // to read from an image
+	// sourceType : 'image',
+	// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',
+
+	// to read from a video
+	// sourceType : 'video',
+	// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',
+})
+
+arToolkitSource.init(function onReady(){
+	// handle resize of renderer
+	arToolkitSource.onResize(renderer.domElement)
+})
+
+// handle resize
+window.addEventListener('resize', function(){
+	// handle arToolkitSource resize
+	arToolkitSource.onResize(renderer.domElement)
+})
+////////////////////////////////////////////////////////////////////////////////
+//          initialize arToolkitContext
+////////////////////////////////////////////////////////////////////////////////
+
+
+// create atToolkitContext
+var arToolkitContext = new THREEx.ArToolkitContext({
+	cameraParametersUrl: THREEx.ArToolkitContext.baseURL + 'assets/camera_para.dat',
+	detectionMode: 'mono',
+})
+// initialize it
+arToolkitContext.init(function onCompleted(){
+	// copy projection matrix to camera
+	camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+})
+
+// update artoolkit on every frame
+onRenderFcts.push(function(){
+	if( arToolkitSource.ready === false )	return
+
+	arToolkitContext.update( arToolkitSource.domElement )
+
+	// update scene.visible if the marker is seen
+
+	scene.visible = camera.visible
+
+})
+
+////////////////////////////////////////////////////////////////////////////////
+//          Create a ArMarkerControls
+////////////////////////////////////////////////////////////////////////////////
+
+// init controls for camera
+var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+	type : 'pattern',
+	patternUrl : THREEx.ArToolkitContext.baseURL + './assets/patt.cat',
+	// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
+	// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
+	changeMatrixMode: 'cameraTransformMatrix'
+})
+// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
+scene.visible = false;
+
+onRenderFcts.push(function(delta){
+	mesh.rotation.x += Math.PI*delta
+})
+
+//////////////////////////////////////////////////////////////////////////////////
+//		render the whole thing on the page
+//////////////////////////////////////////////////////////////////////////////////
+
+// render the scene
+onRenderFcts.push(function(){
+	renderer.render( scene, camera );
+});
+
+var textMesh;
+var content = {};
+var timestamp;
+var mesh_mutex = false;
+var pause = false;
+onRenderFcts.push(function(){
+	if(camera.visible){
+
+		return checkIfCanShowVisualisation();
+	} else {
+		if(mesh_mutex){
+			pause = true;
+		}
+	}
+})
+
+function checkIfCanShowVisualisation(){
+	var now = new Date();
+	console.log(now-timestamp > 30000 + ' ' + now-timestamp)
+	if((!timestamp || now-timestamp > 30000)){
+		console.log('github + rerender!')
+		console.log('remove2')
+		scene.remove( textMesh );
+		scene.add( mesh );
+		var commits = getRecent3Commits('https://api.github.com/repos/Polidea/RxAndroidBle/commits', timestamp)
+		.then(function(json){
+			console.log('create!')
+			content = json;
+			pause = false;
+			return createModel();
+		})
+	} else {
+		if(pause){
+			setTimeout(function () {
+				scene.remove( mesh );
+				return scene.add( textMesh );
+			}, 5);
+		}
+	}
+
+	timestamp = new Date();
+}
+
+function createModel(){
+	if(mesh_mutex){
+		setTimeout(function () {
+			scene.remove( mesh );
+			return scene.add( textMesh );
+		}, 5);
+	} else {
+		return renderText(content)
+		.then(function(object){
+			mesh_mutex = true;
+			textMesh = object;
+			scene.remove( mesh );
+			return scene.add( textMesh );
+		})
+	}
+}
+
+function renderBasicText(){
+	var loader = new THREE.FontLoader();
+	return new Promise(function(resolve, reject){
+		loader.load( './node_modules/three/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+			var textParams =  {
+				height: 20,
+				size: 100,
+				hover: 30,
+				curveSegments: 4,
+				bevelThickness: 2,
+				bevelSize: 1.5,
+				bevelSegments: 3,
+				bevelEnabled: true,
+				font: font,
+				fontWeight: "normal" // normal bold
+			}
+			var content = 'TEXT';
+			var text = new THREE.TextGeometry( content, textParams );
+			var material = new THREE.MeshBasicMaterial( { color: 'blue' } );
+			var atextMesh = new THREE.Mesh( text, material )
+			atextMesh.rotation.y = 0;
+			atextMesh.rotation.x = -140;
+			atextMesh.position.x	= -0.5;
+			atextMesh.position.y	= 0;
+			atextMesh.receiveShadow = true;
+			atextMesh.scale.set(0.002, 0.002, 0.002)
+			resolve(atextMesh);
+		})
+	})
+}
+
+function renderText(json){
+	return new Promise(function(resolve, reject){
+		console.log('kaka');
+		var loader = new THREE.FontLoader();
+		return loader.load( './node_modules/three/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+			var textParams =  {
+				height: 20,
+				size: 100,
+				hover: 30,
+				curveSegments: 4,
+				bevelThickness: 2,
+				bevelSize: 1.5,
+				bevelSegments: 3,
+				bevelEnabled: true,
+				font: font,
+				fontWeight: "normal"
+			}
+
+			var content = json;
+			var singleGeometry = new THREE.Geometry();
+ 			var meshContainer = group = new THREE.Object3D();
+			content.map(function(json, index) {
+				var commit = json.commit
+
+				var date = new THREE.TextGeometry( commit.committer.date, textParams );
+				var pink = new THREE.MeshBasicMaterial( { color: 0x822B66 } );
+				dateTextMesh = new THREE.Mesh( date, pink );
+				var rotation = -Math.PI / 1.9;
+				dateTextMesh.rotation.x = rotation;
+				dateTextMesh.rotation.y = 0;
+
+				dateTextMesh.position.x	= -0.5;
+				dateTextMesh.position.y	= 0.5;
+				dateTextMesh.position.z	= 0 + (index * (1));
+				dateTextMesh.receiveShadow = true;
+				dateTextMesh.scale.set(0.002, 0.002, 0.002)
+
+
+				var author = new THREE.TextGeometry( commit.committer.name, textParams );
+				var red = new THREE.MeshBasicMaterial( { color: 0xA33643 } );
+				authorTextMesh = new THREE.Mesh( author, red );
+				authorTextMesh.rotation.x = rotation;
+				authorTextMesh.rotation.y = 0;
+
+				authorTextMesh.position.x	= 0;
+				authorTextMesh.position.y	= 0.5;
+				authorTextMesh.position.z	= 0.3 + (index * (1));
+				authorTextMesh.receiveShadow = true;
+				authorTextMesh.scale.set(0.002, 0.002, 0.002)
+
+				var message = commit.message.split(' ').slice(0,4).join(' ');
+				var msg = new THREE.TextGeometry( '"' + message + '..."', textParams );
+				var green = new THREE.MeshBasicMaterial( { color: 0x448F30} );
+				msgTextMesh = new THREE.Mesh( msg, green );
+				msgTextMesh.rotation.x = rotation;
+				msgTextMesh.rotation.y = 0;
+
+				msgTextMesh.position.x	= 0.5;
+				msgTextMesh.position.y	= 0.5
+				msgTextMesh.position.z	= 0.6 + (index * (1));
+				msgTextMesh.receiveShadow = true;
+				msgTextMesh.scale.set(0.002, 0.002, 0.002)
+
+				meshContainer.add(dateTextMesh);
+				meshContainer.add(authorTextMesh);
+				meshContainer.add(msgTextMesh);
+			})
+			meshContainer.position.x	= -1;
+			meshContainer.position.z	= -2;
+			resolve( meshContainer );
+		}
+	)
+})
+}
+
+// run the rendering loop
+var lastTimeMsec= null
+requestAnimationFrame(function animate(nowMsec){
+	// keep looping
+	requestAnimationFrame( animate );
+	// measure time
+	lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+	var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+	lastTimeMsec	= nowMsec
+	// call each update function
+	onRenderFcts.forEach(function(onRenderFct){
+		onRenderFct(deltaMsec/1000, nowMsec/1000)
+	})
+})
+</script></body>
