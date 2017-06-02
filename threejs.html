@@ -77,8 +77,9 @@ window.addEventListener('resize', function(){
 
 
 // create atToolkitContext
+console.log( site.baseurl )
 var arToolkitContext = new THREEx.ArToolkitContext({
-	cameraParametersUrl: THREEx.ArToolkitContext.baseURL + 'assets/camera_para.dat',
+	cameraParametersUrl: THREEx.ArToolkitContext.baseURL + {{ site.baseurl }} + 'assets/camera_para.dat',
 	detectionMode: 'mono',
 })
 // initialize it
