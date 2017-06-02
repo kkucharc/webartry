@@ -16,7 +16,7 @@
     </a-assets>
 
     <a-marker url="./assets/patt.bat" type='pattern'>
-      <a-box id='box' position='0 0.5 0' material='opacity: 0.5; side: double; color:pink;' text='value: LoL'>
+      <a-box id='box' position='0 0.5 0' material='opacity: 0.5; side: double; color:pink;'>
       </a-box>
     </a-marker>
 
@@ -26,6 +26,19 @@
           <a-animation attribute="rotation" to="360 0 0" dur="5000" easing='linear' repeat="indefinite"></a-animation>
         </a-entity>
       </a-box>
+    </a-marker>
+
+    <a-marker url="./assets/patt.cat" type='pattern'>
+      <a-box position='0 0.5 0' material='opacity: 0.5; side: double;color:green;'>
+        <a-entity ply-model="src: #bb" rotation='-90 0 0'scale='0.02 0.02 0.02'>
+          <a-animation attribute="rotation" to="360 0 0" dur="5000" easing='linear' repeat="indefinite"></a-animation>
+        </a-entity>
+      </a-box>
+    </a-marker>
+
+    <a-marker url="./assets/patt.logo" type='pattern'>
+      <a-sphere id='sphere' position='0 0.5 0' material='opacity: 0.5; side: double; color:blue;'>
+      </a-sphere>
     </a-marker>
 
     <a-entity camera></a-entity>
