@@ -164,15 +164,11 @@ onRenderFcts.push(function(){
 
 function checkIfCanShowVisualisation(){
 	var now = new Date();
-	console.log(now-timestamp > 30000 + ' ' + now-timestamp)
 	if((!timestamp || now-timestamp > 30000)){
-		console.log('github + rerender!')
-		console.log('remove2')
 		scene.remove( textMesh );
 		scene.add( mesh );
 		var commits = getRecent3Commits('https://api.github.com/repos/Polidea/RxAndroidBle/commits', timestamp)
 		.then(function(json){
-			console.log('create!')
 			content = json;
 			pause = false;
 			return createModel();
@@ -209,7 +205,7 @@ function createModel(){
 function renderBasicText(){
 	var loader = new THREE.FontLoader();
 	return new Promise(function(resolve, reject){
-		loader.load( './node_modules/three/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+		loader.load( './assets/helvetiker_regular.typeface.json', function ( font ) {
 
 			var textParams =  {
 				height: 20,
@@ -240,7 +236,6 @@ function renderBasicText(){
 
 function renderText(json){
 	return new Promise(function(resolve, reject){
-		console.log('kaka');
 		var loader = new THREE.FontLoader();
 		return loader.load( './node_modules/three/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
 			var textParams =  {
