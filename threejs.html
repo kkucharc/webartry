@@ -237,7 +237,7 @@ function renderBasicText(){
 function renderText(json){
 	return new Promise(function(resolve, reject){
 		var loader = new THREE.FontLoader();
-		return loader.load( './node_modules/three/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+		return loader.load( './asset/helvetiker_regular.typeface.json', function ( font ) {
 			var textParams =  {
 				height: 20,
 				size: 100,
