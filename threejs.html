@@ -104,9 +104,7 @@ onRenderFcts.push(function(){
 // init controls for camera
 var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
 	type : 'pattern',
-	patternUrl : './assets/patt.cat',
-	// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
-	// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
+	patternUrl : './assets/patt.logo',
 	changeMatrixMode: 'cameraTransformMatrix'
 })
 // as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
@@ -167,7 +165,7 @@ function checkIfCanShowVisualisation(){
 	if((!timestamp || now-timestamp > 30000)){
 		scene.remove( textMesh );
 		scene.add( mesh );
-		var commits = getRecent3Commits('https://api.github.com/repos/Polidea/RxAndroidBle/commits', timestamp)
+		var commits = getRecent3Commits('https://api.github.com/repos/Polidea/RxBluetoothKit/commits', timestamp)
 		.then(function(json){
 			content = json;
 			pause = false;
